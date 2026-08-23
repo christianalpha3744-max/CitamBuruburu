@@ -7,5 +7,54 @@
 </head>
 <body>
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    netlifyIdentity.on('init', user => {
+      if (user) {
+        // User is already logged in — redirect to admin dashboard
+        window.location.href = '/admin/#/';
+      } else {
+        // User is not logged in — check for invite token in URL
+        // Also show the login/signup button in the CMS UI
+        checkInviteToken();
+      }
+    });
+
+    // Check for invite token in the URL query string
+    function checkInviteToken() {
+      const params = new URLSearchParams(window.location.search);
+      const inviteToken = params.get('invite');
+      if (inviteToken) {
+        // User came from an invitation email — handle the invite flow
+        netlifyIdentity.handleInvite((err, data) => {
+          if (err) {
+            console.error('Invite error:', err);
+            // Fall back to regular login
+            netlifyIdentity.login();
+          } else {
+            // Invite handled successfully — redirect to admin
+            window.location.href = '/admin/#/';
+          }
+        });
+      } else {
+        // No invite token — show the login button in the CMS UI
+        // The Decap CMS will show "Login" button when not authenticated
+        netlifyIdentity.login();
+      }
+    }
+
+    // Handle login success — redirect to admin dashboard
+    netlifyIdentity.on('login', () => {
+      window.location.href = '/admin/#/';
+    });
+
+    // Optional: handle logout
+    netlifyIdentity.on('logout', () => {
+      // User logged out — could redirect or just refresh
+    });
+
+    // Start Netlify Identity check
+    netlifyIdentity.init({});
+  </script>
 </body>
 </html>
