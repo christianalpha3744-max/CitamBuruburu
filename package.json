@@ -1,0 +1,22 @@
+{
+  "name": "citam-buruburu-web",
+  "version": "1.0.0",
+  "description": "CITAM Buruburu Church Website with Decap CMS",
+  "scripts": {
+    "start": "node cms-proxy.js",
+    "serve": "python3 -m http.server 8000",
+    "dev": "node cms-proxy.js & sleep 2 && python3 -m http.server 8000",
+    "decap-server": "npx decap-server",
+    "test": "echo \"No tests specified\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "node-fetch": "^3.3.2"
+  }
+}

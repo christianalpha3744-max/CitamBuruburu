@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sermons — CITAM Buruburu</title>
+  <meta name="description" content="Watch and listen to the latest sermons and Bible teachings from CITAM Buruburu." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .sermon-loading,
+    .sermon-error,
+    .sermon-empty {
+      padding: 4rem 2rem;
+      text-align: center;
+      color: #6b7280;
+      grid-column: 1 / -1;
+    }
+    .sermon-loading .spinner {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      border: 3px solid #e5e7eb;
+      border-top-color: #ef4444;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin-bottom: 0.75rem;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .sermon-error p,
+    .sermon-empty p {
+      margin: 0.5rem 0 0;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="brand" aria-label="CITAM Buruburu Home">
+        <div class="brand-mark" aria-hidden="true"><img src="images/logo.png" alt="Logo" /></div>
+        <div class="brand-text">
+          <strong>CITAM Buruburu</strong>
+          <span>Christ Is The Answer Ministries</span>
+        </div>
+      </a>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="ministries.html">Ministries</a>
+        <a href="sermons.html" class="active">Sermons</a>
+        <a href="give.html">Give</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="livestream.html" class="btn btn-secondary btn-sm">WATCH LIVE</a>
+        <button class="nav-toggle" aria-label="Open navigation menu" aria-expanded="false">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE NAV OVERLAY -->
+  <div class="mobile-nav-overlay" aria-label="Mobile Navigation">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="ministries.html">Ministries</a>
+<a href="sermons.html" class="active">Sermons</a>
+        <a href="give.html">Give</a>
+    <a href="contact.html">Contact</a>
+    <div class="mobile-give-btn">
+      <a href="livestream.html" class="btn btn-secondary" style="width: 100%;">WATCH LIVE ONLINE</a>
+    </div>
+  </div>
+
+  <main>
+    <!-- PAGE HERO -->
+    <section class="page-hero" style="background-image: url('images/herosection1.jpg');">
+      <div class="page-hero-overlay"></div>
+      <div class="container page-hero-content">
+        <span class="eyebrow" style="color: #fca5a5;">GOD'S WORD FOR TODAY</span>
+        <h1>Sermon Archive</h1>
+        <p class="muted" style="color: rgba(255,255,255,0.85); font-size: 1.15rem; max-width: 600px;">Be encouraged and transformed by spirit-filled preaching and practical Bible exposition.</p>
+      </div>
+    </section>
+
+    <!-- SEARCH & FILTER CONTROLS -->
+    <section class="section section-light" style="padding: 40px 0;">
+      <div class="container">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+          <div style="flex-grow: 1; max-width: 400px;">
+            <input type="text" id="sermon-search" class="form-control" placeholder="Search sermons by title or speaker..." />
+          </div>
+          <div style="min-width: 200px;">
+            <select id="sermon-category" class="form-control">
+              <option value="all">All Categories</option>
+              <option value="sunday">Sunday Messages</option>
+              <option value="prayer">Prayer &amp; Fasting</option>
+              <option value="teaching">Biblical Teaching</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERMONS ARCHIVE GRID -->
+    <section class="section reveal">
+      <div class="container">
+        <div id="sermons-grid" class="cards-grid-3">
+          <div id="sermons-loading" class="sermon-loading">
+            <div class="spinner"></div>
+            <p>Loading sermons...</p>
+          </div>
+          <div id="sermons-error" class="sermon-error" style="display:none;">
+            <p>Unable to load sermons right now.<br />Please try again later.</p>
+          </div>
+          <div id="sermons-empty" class="sermon-empty" style="display:none;">
+            <p>No recent sermons are available.</p>
+          </div>
+        </div>
+        <div id="sermons-load-more" style="display:none; text-align: center; margin-top: 2rem;">
+          <button id="load-more-btn" class="btn btn-secondary">Load More</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE STREAM BANNER -->
+    <section class="final-cta">
+      <div class="container">
+        <h2>WATCH OUR SERVICES LIVE</h2>
+        <p>Catch up on all Sunday services and mid-week prayer gatherings live on our streaming platform.</p>
+        <a href="livestream.html" class="btn btn-secondary">GO TO LIVE STREAM</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="brand" style="margin-bottom: 1.25rem;">
+            <div class="brand-mark" aria-hidden="true"><img src="images/logo.png" alt="Logo" /></div>
+            <div class="brand-text">
+              <strong>CITAM Buruburu</strong>
+              <span>Christ Is The Answer Ministries</span>
+            </div>
+          </div>
+          <p>Building a community of faith, discipleship, and transformation across Buruburu, Nairobi, and beyond.</p>
+          <div class="social-links">
+            <a href="https://www.youtube.com/@citamburuburu2530" target="_blank" rel="noopener" class="social-link" aria-label="YouTube">YT</a>
+            <a href="#" class="social-link" aria-label="Facebook">FB</a>
+            <a href="https://x.com/CITAM_BURUBURU" target="_blank" rel="noopener" class="social-link" aria-label="Twitter">TW</a>
+            <a href="#" class="social-link" aria-label="Instagram">IG</a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>QUICK LINKS</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="ministries.html">Ministries</a></li>
+            <li><a href="sermons.html">Sermon Archive</a></li>
+            <li><a href="livestream.html">Live Stream</a></li>
+            <li><a href="give.html">Give Online</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>SERVICE TIMES</h4>
+          <p><strong>Sunday Services:</strong><br />Prayer &amp; Intercession: 7:00 AM – 8:30 AM<br />1st Service: 8:30 AM – 10:30 AM | 2nd Service: 11:30 AM – 1:30 PM</p>
+          <p><strong>Youth &amp; Teens:</strong><br />Youth Service: 9:00 AM<br />Teens Service: 11:30 AM</p>
+          <p><strong>Midweek:</strong><br />Wednesday Prayer: 6:00 PM – 7:30 PM</p>
+          <p><strong>Monthly Kesha:</strong><br />Every 4th Friday • 6:00 PM – 9:00 PM</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>CONTACT US</h4>
+          <p><strong>CITAM Buruburu</strong><br />Nziu Road, off Mumias Road, Buruburu<br />Nairobi, Kenya</p>
+          <p><strong>P.O. Box:</strong> 42254–00100, Nairobi</p>
+          <p><strong>Email:</strong> npcburuburu@citam.org</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© <span data-year></span> CITAM Buruburu. All Rights Reserved.</span>
+        <span>Christ Is The Answer Ministries</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

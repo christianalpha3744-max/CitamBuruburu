@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Block sensitive paths and files
+Disallow: /.env*
+Disallow: /*.pdf$
+Disallow: /*.doc$
+Disallow: /*.docx$
+Disallow: /*.zip$
+Disallow: /*.exe$
+
+# Slow down aggressive crawlers
+Crawl-delay: 1

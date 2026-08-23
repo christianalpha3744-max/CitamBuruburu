@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables (contains secrets)
+.env
+.env.local
+.env.*.local
+
+# CMS uploads (managed by Decap CMS)
+static/admin/uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+/tmp/cms-proxy.log
+/tmp/decap-server.log
+
+# Build outputs (if any are added later)
+dist/
+build/

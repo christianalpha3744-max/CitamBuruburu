@@ -1,0 +1,26 @@
+backend:
+  name: git-gateway
+  branch: main
+
+local_backend:
+  url: http://localhost:8081/api/v1
+
+media_folder: "images"
+public_folder: "images"
+
+collections:
+  - name: "events"
+    label: "Events"
+    folder: "content/events"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Event Title", name: "title", widget: "string", required: true }
+      - { label: "Event Date", name: "date", widget: "date", format: "YYYY-MM-DD", required: true }
+      - { label: "Start Time", name: "startTime", widget: "string", hint: "e.g. 08:30 AM", required: false }
+      - { label: "End Time", name: "endTime", widget: "string", hint: "e.g. 10:30 AM", required: false }
+      - { label: "Location", name: "location", widget: "string", required: true }
+      - { label: "Description", name: "description", widget: "text", required: true }
+      - { label: "Cover Image", name: "image", widget: "image", required: false }
+      - { label: "Registration URL", name: "registrationUrl", widget: "string", required: false, hint: "Optional — leave blank if no registration link" }
+      - { label: "Status", name: "status", widget: "select", options: ["published", "draft"], default: "published" }
