@@ -523,8 +523,9 @@
   <script src="script.js"></script>
   <script src="livestream.js"></script>
 
-  <!-- Netlify Identity invitation redirect -->
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <!-- Netlify Identity invitation redirect: moves Identity email-link
+       tokens (invite/confirmation/recovery) from the homepage to /admin/
+       without touching the hash, so normal visitors are never affected. -->
   <script>
     (function () {
       const hash = window.location.hash;

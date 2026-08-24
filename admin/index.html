@@ -6,66 +6,51 @@
   <title>Content Manager — CITAM Buruburu</title>
 </head>
 <body>
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <!-- Official Netlify Identity widget. Must load BEFORE Decap CMS so the
+       CMS reuses this instance instead of injecting a second copy. -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+  <!-- Decap CMS -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+
   <script>
-    function checkIdentityTokens() {
-      const hash = window.location.hash;
-      const isIdentityInvite =
-        hash.includes('invite_token=') ||
-        hash.includes('confirmation_token=') ||
-        hash.includes('recovery_token=');
-
-      if (!isIdentityInvite) {
-        // No Identity token in hash — proceed with normal init
-        netlifyIdentity.init({});
-        return;
-      }
-    }
-
-    netlifyIdentity.on('init', user => {
-      if (user) {
-        // User is already logged in — redirect to admin dashboard
-        window.location.href = '/admin/#/';
-      } else {
-        // User is not logged in — check for invite token in URL
-        checkIdentityTokens();
-      }
-    });
-
-    // Check for Identity tokens (invite, confirmation, recovery) in the URL hash
-    function checkIdentityTokens() {
-      const hash = window.location.hash;
-      const isIdentityInvite =
-        hash.includes('invite_token=') ||
-        hash.includes('confirmation_token=') ||
-        hash.includes('recovery_token=');
-
-      if (!isIdentityInvite) {
-        // No Identity token in hash — start init normally
-        netlifyIdentity.init({});
+    (function () {
+      if (!window.netlifyIdentity) {
+        console.error('Netlify Identity widget failed to load.');
         return;
       }
 
-      // User came from an Identity invitation/confirmation/signup —
-      // start init so the widget processes the token from the hash
-      netlifyIdentity.init({});
-    }
+      // Fires once the widget has checked the session / processed any
+      // invite_token=, confirmation_token= or recovery_token= in the URL hash.
+      netlifyIdentity.on('init', function (user) {
+        if (user) {
+          console.log('Netlify Identity authenticated:', user.email);
+        }
+      });
 
-    // Handle login success — redirect to admin dashboard
-    netlifyIdentity.on('login', () => {
-      if (!window.location.pathname.startsWith('/admin')) {
-        window.location.href = '/admin/#/';
-      }
-    });
+      netlifyIdentity.on('login', function (user) {
+        console.log('Netlify Identity login:', user.email);
+        // On /admin the CMS picks up the login itself; only redirect when
+        // we are somewhere else, so this can never create an auth loop.
+        if (!window.location.pathname.startsWith('/admin')) {
+          window.location.replace('/admin/');
+        }
+      });
 
-    // Optional: handle logout
-    netlifyIdentity.on('logout', () => {
-      // User logged out — could redirect or just refresh
-    });
+      netlifyIdentity.on('signup', function (user) {
+        console.log('Netlify Identity account created:', user.email);
+      });
 
-    // Start Netlify Identity check
-    netlifyIdentity.init({});
+      netlifyIdentity.on('logout', function () {
+        console.log('Netlify Identity logout');
+        window.location.replace('/admin/');
+      });
+
+      // NOTE: no manual netlifyIdentity.init() call here. The CDN widget
+      // initializes itself on load, and Decap CMS drives it during boot.
+      // Calling init() manually as well runs it twice and corrupts the
+      // widget state ("...is not a function" errors).
+    })();
   </script>
 </body>
 </html>
