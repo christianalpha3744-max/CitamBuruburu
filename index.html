@@ -522,5 +522,28 @@
 
   <script src="script.js"></script>
   <script src="livestream.js"></script>
+
+  <!-- Netlify Identity invitation redirect -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    (function () {
+      const hash = window.location.hash;
+      const isIdentityInvite =
+        hash.includes('invite_token=') ||
+        hash.includes('confirmation_token=') ||
+        hash.includes('recovery_token=');
+
+      if (!isIdentityInvite) {
+        return;
+      }
+
+      // Preserve the Netlify Identity token while moving the user
+      // from the homepage to the CMS.
+      if (!window.location.pathname.startsWith('/admin')) {
+        const target = '/admin/' + hash;
+        window.location.replace(target);
+      }
+    })();
+  </script>
 </body>
 </html>
