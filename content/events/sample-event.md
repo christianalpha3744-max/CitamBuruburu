@@ -1,11 +1,11 @@
 ---
-title: "Sunday Service"
-date: "2026-12-31"
-startTime: "08:30 AM"
-endTime: "10:30 AM"
-location: "Main Sanctuary, Buruburu"
-description: "Join us for worship, prayer, and the Word."
-image: "/images/herosection1.jpg"
+title: Sunday Serve
+date: 2026-12-31
+startTime: 08:30 AM
+endTime: 10:30 AM
+location: Main Sanctuary, Buruburu
+description: Join us for worship, prayer, and the Word.
+image: /images/herosection1.jpg
 registrationUrl: ""
-status: "published"
+status: published
 ---
