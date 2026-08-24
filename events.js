@@ -1,13 +1,17 @@
 /**
  * CITAM Buruburu Events — Load and render CMS-managed events
  *
- * Local testing:  serves from content/events/ via Python http.server
- * Production:     serves from GitHub raw content API
- *
- * To use with your own GitHub repo, update GITHUB_RAW_EVENTS_URL below.
+ * Local testing:  reads content/events/ via the dev server's directory listing
+ * Production:     lists content/events/ through the public GitHub Contents API
+ *                 (raw.githubusercontent.com cannot list directories, so the
+ *                 Contents API is used for discovery, then raw URLs for content)
  */
 
-const GITHUB_RAW_EVENTS_URL = "https://raw.githubusercontent.com/christian/citam-buruburu-web/main/content/events";
+const REPO_OWNER = "christianalpha3744-max";
+const REPO_NAME = "CitamBuruburu";
+const REPO_BRANCH = "main";
+const GITHUB_API_EVENTS_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/content/events`;
+const GITHUB_RAW_BASE_URL = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${REPO_BRANCH}/content/events`;
 const LOCAL_EVENTS_PATH = "content/events";
 
 function parseFrontmatter(content) {
@@ -68,69 +72,64 @@ function formatEventTime(timeString) {
 }
 
 async function fetchEventFiles() {
-  let files = [];
-
+  // 1. Local development: python http.server / serve.sh expose a real
+  //    directory listing we can scrape for .md links.
   try {
     const response = await fetch(LOCAL_EVENTS_PATH + "/?t=" + Date.now());
     if (response.ok) {
-      const text = await response.text();
-      const matches = text.match(/href="([^"]+\.md)"/g) || [];
-      files = matches
-        .map((p) => p.match(/href="([^"]+)"/)[1])
-        .filter((name) => !name.startsWith("."))
-        .map((name) => name.startsWith("content/events/") ? name : LOCAL_EVENTS_PATH + "/" + name);
-
-      if (files.length > 0) return files;
+      const contentType = response.headers.get("Content-Type") || "";
+      if (contentType.includes("text/html")) {
+        const text = await response.text();
+        const matches = text.match(/href="([^"]+\.md)"/g) || [];
+        const names = matches
+          .map((p) => p.match(/href="([^"]+)"/)[1].split("/").pop())
+          .filter((name) => !name.startsWith("."));
+        if (names.length > 0) {
+          return names.map((name) => ({ url: `${LOCAL_EVENTS_PATH}/${name}` }));
+        }
+      }
     }
   } catch (e) {
     console.warn("Local directory listing failed:", e);
   }
 
+  // 2. Production: GitHub Contents API returns JSON with one entry per file.
   try {
-    const response = await fetch(GITHUB_RAW_EVENTS_URL + "?t=" + Date.now());
+    const response = await fetch(GITHUB_API_EVENTS_URL + "?t=" + Date.now());
     if (response.ok) {
-      const text = await response.text();
-      const matches = text.match(/href="([^"]+\.md)"/g) || [];
-      files = matches.map((p) => p.match(/href="([^"]+)"/)[1]);
-
-      if (files.length > 0) return files;
+      const entries = await response.json();
+      if (Array.isArray(entries)) {
+        return entries
+          .filter((entry) => entry.type === "file" && entry.name.endsWith(".md"))
+          .map((entry) => ({
+            url: entry.download_url || `${GITHUB_RAW_BASE_URL}/${entry.name}`,
+          }));
+      }
     }
   } catch (e) {
-    console.warn("GitHub directory listing failed:", e);
+    console.warn("GitHub API listing failed:", e);
   }
 
   return [];
 }
 
-async function fetchEventMarkdown(path) {
-  const urls = [path, GITHUB_RAW_EVENTS_URL + "/" + path.split("/").pop()];
-
-  for (const url of urls) {
-    try {
-      const response = await fetch(url + "?t=" + Date.now());
-      if (response.ok) {
-        return await response.text();
-      }
-    } catch (e) {
-      continue;
+async function fetchEventMarkdown(file) {
+  try {
+    const response = await fetch(file.url + "?t=" + Date.now());
+    if (response.ok) {
+      return await response.text();
     }
+  } catch (e) {
+    console.warn("Failed to load event:", file.url, e);
   }
   return null;
 }
 
 async function loadEvents() {
   const upcomingContainer = document.getElementById("upcoming-events");
-  const pastContainer = document.getElementById("past-events");
-
-  if (!upcomingContainer || !pastContainer) return;
+  if (!upcomingContainer) return;
 
   const files = await fetchEventFiles();
-
-  if (files.length === 0) {
-    upcomingContainer.innerHTML = '<p class="muted" style="font-size: 1.05rem;">No upcoming events at the moment.</p>';
-    pastContainer.innerHTML = "";
-    return;
-  }
 
   const events = [];
 
@@ -150,11 +149,11 @@ async function loadEvents() {
       location: attributes.location || "",
       description: attributes.description || "",
       image: attributes.image || "",
-      registrationUrl: attributes.registrationUrl || "",
-      status: attributes.status || "draft"
+      registrationUrl: attributes.registrationUrl || ""
     };
 
-    if (event.date) {
+    const parsed = new Date(event.date + "T00:00:00");
+    if (!isNaN(parsed.getTime())) {
       events.push(event);
     }
   }
@@ -166,11 +165,7 @@ async function loadEvents() {
     .filter((e) => new Date(e.date + "T00:00:00") >= today)
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  const past = events
-    .filter((e) => new Date(e.date + "T00:00:00") < today)
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  renderEvents(upcomingContainer, pastContainer, upcoming, past);
+  renderEvents(upcomingContainer, upcoming);
 }
 
 function renderEventCard(event) {
@@ -210,9 +205,9 @@ function renderEventCard(event) {
       <div class="event-card-meta">
         <span class="event-card-date">${formatEventDate(event.date)}</span>
         ${timeDisplay ? `<span class="event-card-time">${timeDisplay}</span>` : ""}
+        ${event.location ? `<span class="event-card-location">${escapeHtml(event.location)}</span>` : ""}
       </div>
       <h3>${escapeHtml(event.title)}</h3>
-      <p class="event-card-location">${escapeHtml(event.location)}</p>
       <p class="event-card-description">${escapeHtml(event.description)}</p>
       <div class="event-card-actions">
         ${registrationHtml}
@@ -223,35 +218,24 @@ function renderEventCard(event) {
   return article;
 }
 
-function renderEvents(upcomingContainer, pastContainer, upcoming, past) {
-  upcomingContainer.innerHTML = "";
-  pastContainer.innerHTML = "";
+function renderEvents(container, upcoming) {
+  container.innerHTML = "";
 
   if (upcoming.length === 0) {
-    upcomingContainer.innerHTML = '<p class="muted" style="font-size: 1.05rem;">No upcoming events at the moment.</p>';
-  } else {
-    const grid = document.createElement("div");
-    grid.className = "events-grid-inner";
-    upcoming.forEach((event) => {
-      grid.appendChild(renderEventCard(event));
-    });
-    upcomingContainer.appendChild(grid);
+    container.innerHTML = '<p class="muted" style="font-size: 1.05rem;">No upcoming events at the moment.</p>';
+    return;
   }
 
-  if (past.length === 0) {
-    pastContainer.innerHTML = "";
-  } else {
-    const grid = document.createElement("div");
-    grid.className = "events-grid-inner";
-    past.forEach((event) => {
-      grid.appendChild(renderEventCard(event));
-    });
-    pastContainer.appendChild(grid);
-  }
+  const list = document.createElement("div");
+  list.className = "events-list";
+  upcoming.forEach((event) => {
+    list.appendChild(renderEventCard(event));
+  });
+  container.appendChild(list);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("upcoming-events") || document.getElementById("past-events")) {
+  if (document.getElementById("upcoming-events")) {
     loadEvents();
   }
 });
