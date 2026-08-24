@@ -6,8 +6,3 @@
   from = "/admin"
   to = "/admin/index.html"
   status = 200
-
-[[redirects]]
-  from = "/api/v1/*"
-  to = "/.netlify/functions/git-gateway/:splat"
-  status = 200
