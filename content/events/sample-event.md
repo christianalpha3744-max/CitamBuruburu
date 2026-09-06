@@ -1,5 +1,5 @@
 ---
-title: Sunday Serve
+title: Sunday Service
 date: 2026-12-31
 startTime: 08:30 AM
 endTime: 10:30 AM
